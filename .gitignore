@@ -1,0 +1,7 @@
+__pycache__
+temp
+file_examples
+.venv
+app/config/aunth_config.yaml
+prompts.yaml
+.secrets.toml
