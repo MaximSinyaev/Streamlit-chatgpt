@@ -4,5 +4,6 @@ Pillow==11.0.0
 pytesseract==0.3.13
 PyYAML==6.0.2
 streamlit==1.40.1
-streamlit_authenticator==0.4.1
+streamlit-authenticator==0.4.1
 toml==0.10.2
+watchdog==6.0.0
