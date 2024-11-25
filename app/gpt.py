@@ -6,12 +6,23 @@ from PIL import Image
 import yaml
 from yaml.loader import SafeLoader
 from utils import strip_spaces
+import httpx
+from utils import is_bad_proxy
 
 secrets = toml.load(".secrets.toml")
 
 api_key = secrets["openai"]["api_key"]
+openai_proxy = secrets["openai"]["proxy"]
 
-client = openai.OpenAI(api_key=api_key)
+
+httpx_client = httpx.Client(proxy=openai_proxy)
+if httpx_client.get("https://httpbin.org/get").status_code == 200:
+    print("Proxy is working.")
+    client = openai.OpenAI(api_key=api_key, http_client=httpx_client)
+else:
+    print("Proxy is not working.")
+    client = openai.OpenAI(api_key=api_key)
+
 
 with open('app/config/prompts.yaml') as file:
     prompts = yaml.load(file, Loader=SafeLoader)
@@ -52,18 +63,15 @@ def chat_with_file():
         messages = [
             {"role": "system", "content": "You are an medical assistant skilled in extracting data from files."},
             {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": prompt},
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:{img_type};base64,{encoded_file}"},
-                },
-            ],
-        }
-            #     {"type": "text", "content": prompt},
-            #     # {"type": "image_url", "image_url": f"data:{img_type};base64,{encoded_file}"},
-            # ]}
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:{img_type};base64,{encoded_file}"},
+                    },
+                ],
+            }
         ]
 
         try:
